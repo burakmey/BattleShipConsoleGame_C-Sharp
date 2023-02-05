@@ -50,7 +50,7 @@ namespace BattleShipConsoleGame
             do
             {
                 pass = false;
-                if (isComputer)
+                if (isComputer) //if isComputer = true the placement of ships will be random
                 {
                     Random random = new Random();
                     isVerticalPlacement = random.Next(2) == 0 ? true : false;
@@ -66,54 +66,52 @@ namespace BattleShipConsoleGame
                         h = random.Next(ROWANDCOLUMN - ship + 1);
                     }
                 }
-                else //
+                else //if isComputer = false the placement of ships will be users opinion
                 {
 
                 }
-                if (isVerticalPlacement) // if isVerticalPlacement = true it will be vertical placement
+                if (isVerticalPlacement) //if isVerticalPlacement = true it will be vertical placement
                 {
-                    try
-                    {
-                        for (int i = v - 1; i < v + ship + 2; i++)
-                            for (int j = h - 1; j < h + 2; j++)
+                    for (int i = v - 1; i < v + ship + 2; i++)
+                        for (int j = h - 1; j < h + 2; j++)
+                        {
+                            try
                             {
                                 if (GameBoard[i, j] == '%') //controlling if it is convenient
                                 {
                                     pass = true;
                                     goto Start;
-                                    //break;//goto do
                                 }
                             }
-                    }
-                    catch (Exception)
-                    {
-                        //throw;
-                    }
+                            catch (Exception)
+                            {
+                                //throw;
+                            }
+                        }
                     if (!pass)
                     {
                         for (int i = 0; i < ship; i++)
                             gameBoard[v + i, h] = '%';
                     }
                 }
-                else // if isVerticalPlacement = false it will be horizontal placement
+                else //if isVerticalPlacement = false it will be horizontal placement
                 {
-                    try
-                    {
-                        for (int i = v - 1; i < v + 2; i++)
-                            for (int j = h - 1; j < h + ship+ 2; j++)
+                    for (int i = v - 1; i < v + 2; i++)
+                        for (int j = h - 1; j < h + ship + 2; j++)
+                        {
+                            try
                             {
                                 if (GameBoard[i, j] == '%') //controlling if it is convenient
                                 {
                                     pass = true;
                                     goto Start;
-                                    //break;
                                 }
                             }
-                    }
-                    catch (Exception)
-                    {
-                        //throw;
-                    }
+                            catch (Exception)
+                            {
+                                //throw;
+                            }
+                        }
                     if (!pass)
                     {
                         for (int i = 0; i < ship; i++)
