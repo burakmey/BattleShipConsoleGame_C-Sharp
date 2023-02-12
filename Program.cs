@@ -5,7 +5,9 @@
         static void Main(string[] args)
         {
             Board computerBoard = new Board(true);
-            computerBoard.PrintBoard();
+            Board userBoard = new Board(false);
+            PlayGame playGame = new PlayGame(userBoard, computerBoard);
+            playGame.PrintGame();
         }
     }
 }
