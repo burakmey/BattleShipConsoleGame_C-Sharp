@@ -221,6 +221,7 @@ namespace BattleShipConsoleGame.Boards
                 }
                 else
                 {
+                    RemoveImpossibleFromHitLocations();
                     OpponentRemainShips.Remove(ShipHits.Count);
                     ShipHits.Clear();
                     PossibleShipLocations.Clear();
@@ -229,7 +230,7 @@ namespace BattleShipConsoleGame.Boards
                 }
             }
         }
-        bool AddToPossibleShipLocations(Location location, Location exceptLocation, char[,] targetBoard)//Remove from HitLocation X nearby
+        bool AddToPossibleShipLocations(Location location, Location exceptLocation, char[,] targetBoard)
         {
             if (!HitLocations.Contains(location))
             {
@@ -307,6 +308,19 @@ namespace BattleShipConsoleGame.Boards
                 if (!AddToPossibleShipLocations(locationMax, new Location(maxX - 1, y), targetBoard) && !ShipHitBorders.Contains(locationMax))
                 {
                     ShipHitBorders.Add(locationMax);
+                }
+            }
+        }
+        void RemoveImpossibleFromHitLocations()
+        {
+            foreach (Location location in ShipHits)
+            {
+                for (int i = location.Y - 1; i <= location.Y + 1; i++)
+                {
+                    for (int j = location.X - 1; j <= location.X + 1; j++)
+                    {
+                        HitLocations.Remove(new Location(j, i));
+                    }
                 }
             }
         }
