@@ -6,6 +6,7 @@ namespace BattleShipConsoleGame.Boards
     internal abstract class Board
     {
         protected const int ROWANDCOLUMN = 10;
+        public bool isFinished = false;
         char[,] gameBoard;
         List<int> opponentRemainShips;
         List<int> placementShips;

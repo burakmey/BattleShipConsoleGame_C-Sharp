@@ -143,22 +143,33 @@ namespace BattleShipConsoleGame.Boards
         public override bool ShootTarget(char[,] targetBoard)
         {
             Location location = GetTargetLocation(targetBoard);
-            if (targetBoard[location.Y, location.X] == '%')
+            if (!isFinished)
             {
-                targetBoard[location.Y, location.X] = 'X';
-                Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} HIT");
-                return true;
-            }
-            else if (targetBoard[location.Y, location.X] == '~')
-            {
-                targetBoard[location.Y, location.X] = 'M';
-                Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} MISS");
+                if (targetBoard[location.Y, location.X] == '%')
+                {
+                    targetBoard[location.Y, location.X] = 'X';
+                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} HIT");
+                    Console.WriteLine($"PossibleShipLocations.Count = {PossibleShipLocations.Count}");
+                    Console.WriteLine($"ShipHits.Count = {ShipHits.Count}");
+                    Console.WriteLine($"ShipHitBorders.Count = {ShipHitBorders.Count}");
+                    return true;
+                }
+                else if (targetBoard[location.Y, location.X] == '~')
+                {
+                    targetBoard[location.Y, location.X] = 'M';
+                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} MISS");
+                    Console.WriteLine($"PossibleShipLocations.Count = {PossibleShipLocations.Count}");
+                    Console.WriteLine($"ShipHits.Count = {ShipHits.Count}");
+                    Console.WriteLine($"ShipHitBorders.Count = {ShipHitBorders.Count}");
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} ???????");
+                }
                 return false;
             }
-            else
-            {
-                Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} ???????");
-            }
+            Console.WriteLine($"Finished!");
             return false;
         }
         public override Location GetTargetLocation(char[,] targetBoard)
@@ -175,14 +186,11 @@ namespace BattleShipConsoleGame.Boards
                 if (targetBoard[location.Y, location.X] == '%')
                 {
                     ShipHits.Add(location);
-                    AddToPossibleShipLocations(new Location(location.X - 1, location.Y), location, targetBoard);
-                    AddToPossibleShipLocations(new Location(location.X, location.Y - 1), location, targetBoard);
-                    AddToPossibleShipLocations(new Location(location.X + 1, location.Y), location, targetBoard);
-                    AddToPossibleShipLocations(new Location(location.X, location.Y + 1), location, targetBoard);     
+                    AddToPossibleShipLocations(location, targetBoard);    
                 }
                 return location;
             }
-            else if (ShipHits.Count == 1)
+            else if (ShipHits.Count > 0 && ShipHitBorders.Count != 2 && OpponentRemainShips.Max() > ShipHits.Count)
             {
                 index = random.Next(PossibleShipLocations.Count);
                 location = PossibleShipLocations[index];
@@ -191,71 +199,116 @@ namespace BattleShipConsoleGame.Boards
                 {
                     ShipHits.Add(location);
                     PossibleShipLocations.Clear();
-                    UpdatePossibleShipLocations(targetBoard);
+                    UpdatePossibleShipLocations();
                 }
                 else
                 {
                     PossibleShipLocations.Remove(location);
+                    if (ShipHits.Count > 1)
+                    {
+                        //ShipHitBorders.Add(location);
+                        PossibleShipLocations.Clear();
+                        UpdatePossibleShipLocations();
+                    }
                 }
                 return location;
             }
             else
             {
-                if (ShipHitBorders.Count != 2 && OpponentRemainShips.Max() > ShipHits.Count)
+                OpponentRemainShips.Remove(ShipHits.Count);
+                if (OpponentRemainShips.Count == 0)
                 {
-                    index = random.Next(PossibleShipLocations.Count);
-                    location = PossibleShipLocations[index];
-                    HitLocations.Remove(location);
-                    if (targetBoard[location.Y, location.X] == '%')
-                    {
-                        ShipHits.Add(location);
-                        PossibleShipLocations.Clear();
-                        UpdatePossibleShipLocations(targetBoard);
-                    }
-                    else
-                    {
-                        PossibleShipLocations.Remove(location);
-                        ShipHitBorders.Add(location);
-                    }
-                    return location;
+                    isFinished = true;
+                    return new Location();
                 }
-                else
-                {
-                    RemoveImpossibleFromHitLocations();
-                    OpponentRemainShips.Remove(ShipHits.Count);
-                    ShipHits.Clear();
-                    PossibleShipLocations.Clear();
-                    ShipHitBorders.Clear();
-                    goto Start;
-                }
+                RemoveImpossibleFromHitLocations();
+                ShipHits.Clear();
+                PossibleShipLocations.Clear();
+                ShipHitBorders.Clear();
+                goto Start;
             }
         }
-        bool AddToPossibleShipLocations(Location location, Location exceptLocation, char[,] targetBoard)
+        void AddToPossibleShipLocations(Location location, char[,] targetBoard)
         {
-            if (!HitLocations.Contains(location))
+            List<int> sizes = new List<int> { 1, 1, 1, 1 };
+            for (int i = location.Y - 1; ; i--)
             {
-                return false;
-            }
-            for (int i = location.Y - 1; i <= location.Y + 1; i++)
-            {
-                for (int j = location.X - 1; j <= location.X + 1; j++)
+                try
                 {
-                    try
+                    if (targetBoard[i, location.X] != '~' && !HitLocations.Contains(new Location(location.X, i)))
                     {
-                        if (targetBoard[i, j] == 'X' && j != exceptLocation.X && i != exceptLocation.Y && HitLocations.Contains(location))
-                        {
-                            return false;
-                        }
-                    }
-                    catch (Exception)
-                    {
+                        break;
                     }
                 }
+                catch (Exception)
+                {
+                    break;
+                }
+                sizes[0]++;
+                if (sizes[0] == OpponentRemainShips.Max())
+                    break;
             }
-            PossibleShipLocations.Add(location);
-            return true;
+            if (sizes[0] >= OpponentRemainShips.Min() && HitLocations.Contains(new Location(location.X, location.Y - 1)))
+                PossibleShipLocations.Add(new Location(location.X, location.Y - 1));
+            for (int j = location.X + 1; ; j++)
+            {
+                try
+                {
+                    if (targetBoard[location.Y, j] != '~' && !HitLocations.Contains(new Location(j, location.Y)))
+                    {
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+                sizes[1]++;
+                if (sizes[1] == OpponentRemainShips.Max())
+                    break;
+            }
+            if (sizes[1] >= OpponentRemainShips.Min() && HitLocations.Contains(new Location(location.X + 1, location.Y)))
+                PossibleShipLocations.Add(new Location(location.X + 1, location.Y));
+            for (int i = location.Y + 1; ; i++)
+            {
+                try
+                {
+                    if (targetBoard[i, location.X] != '~' && !HitLocations.Contains(new Location(location.X, i)))
+                    {
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+                sizes[2]++;
+                if (sizes[2] == OpponentRemainShips.Max())
+                    break;
+            }
+            if (sizes[2] >= OpponentRemainShips.Min() && HitLocations.Contains(new Location(location.X, location.Y + 1)))
+                PossibleShipLocations.Add(new Location(location.X, location.Y + 1));
+            for (int j = location.X - 1; ; j--)
+            {
+                try
+                {
+                    if (targetBoard[location.Y, j] != '~' && !HitLocations.Contains(new Location(j, location.Y)))
+                    {
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+                sizes[3]++;
+                if (sizes[3] == OpponentRemainShips.Max())
+                    break;
+            }
+            if (sizes[3] >= OpponentRemainShips.Min() && HitLocations.Contains(new Location(location.X - 1, location.Y)))
+                PossibleShipLocations.Add(new Location(location.X - 1, location.Y));
         }
-        void UpdatePossibleShipLocations(char[,] targetBoard) 
+        void UpdatePossibleShipLocations() 
         {
             Location locationMin, locationMax;
             if (ShipHits[0].X == ShipHits[1].X)
@@ -275,14 +328,15 @@ namespace BattleShipConsoleGame.Boards
                 }
                 locationMin = new Location(x, minY);
                 locationMax = new Location(x, maxY);
-                if (!AddToPossibleShipLocations(locationMin, new Location(x, minY + 1), targetBoard) && !ShipHitBorders.Contains(locationMin))
-                {
+                if (HitLocations.Contains(locationMin))
+                    PossibleShipLocations.Add(locationMin);
+                else if (!ShipHitBorders.Contains(locationMin))
                     ShipHitBorders.Add(locationMin);
-                }
-                if (!AddToPossibleShipLocations(locationMax, new Location(x, maxY - 1), targetBoard) && !ShipHitBorders.Contains(locationMax))
-                {
+
+                if (HitLocations.Contains(locationMax))
+                    PossibleShipLocations.Add(locationMax);
+                else if (!ShipHitBorders.Contains(locationMax))
                     ShipHitBorders.Add(locationMax);
-                }
             }
             else if (ShipHits[0].Y == ShipHits[1].Y)
             {
@@ -301,14 +355,15 @@ namespace BattleShipConsoleGame.Boards
                 }
                 locationMin = new Location(minX, y);
                 locationMax = new Location(maxX, y);
-                if (!AddToPossibleShipLocations(locationMin, new Location(minX + 1, y), targetBoard) && !ShipHitBorders.Contains(locationMin))
-                {
+                if (HitLocations.Contains(locationMin))
+                    PossibleShipLocations.Add(locationMin);
+                else if (!ShipHitBorders.Contains(locationMin))
                     ShipHitBorders.Add(locationMin);
-                }
-                if (!AddToPossibleShipLocations(locationMax, new Location(maxX - 1, y), targetBoard) && !ShipHitBorders.Contains(locationMax))
-                {
+
+                if (HitLocations.Contains(locationMax))
+                    PossibleShipLocations.Add(locationMax);
+                else if (!ShipHitBorders.Contains(locationMax))
                     ShipHitBorders.Add(locationMax);
-                }
             }
         }
         void RemoveImpossibleFromHitLocations()
