@@ -37,8 +37,7 @@ namespace BattleShipConsoleGame.Boards
         }
         public abstract void CreateEmptyBoard();
         public abstract void PrintBoard();
-        protected abstract void PlaceShips();
-        protected abstract Location GetPlacementLocation();
+        protected abstract void PlaceShips(string shipName, int shipSize);
         public abstract bool ShootTarget(char[,] targetBoard);
         public abstract Location GetTargetLocation(char[,] targetBoard);
         protected enum Ships

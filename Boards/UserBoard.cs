@@ -18,10 +18,6 @@ namespace BattleShipConsoleGame.Boards
                     GameBoard[i, j] = '~';
 
             OpponentRemainShips = new List<int>();
-            foreach (int value in Enum.GetValues<Ships>())
-                OpponentRemainShips.Add(value);
-
-            PlacementShips = new List<int>(OpponentRemainShips);
         }
         public override void PrintBoard()
         {
@@ -40,81 +36,26 @@ namespace BattleShipConsoleGame.Boards
             }
             Console.WriteLine("|yx|1|2|3|4|5|6|7|8|9|10|" + "\n");
         }
-        protected override void PlaceShips()
+        protected override void PlaceShips(string shipName, int shipSize)
         {
-            int v, h;
-            bool isVerticalPlacement;
-            int ship = PlacementShips.First();
+            int v, h, x, y;
+            bool isVerticalPlacement, pass = true;
+            char c;
+            string input;
+            Location location = new Location();
         Start:
-            char input;
+            pass = true;
             Console.Write("Determine the placement, vertical(V/v) or horizontal(H/h) : ");
-            input = Console.ReadLine()[0];
-            if (input == 'V' || input == 'v')
+            c = Console.ReadLine()[0];
+            if (c == 'V' || c == 'v')
                 isVerticalPlacement = true;
-            else if (input == 'H' || input == 'h')
+            else if (c == 'H' || c == 'h')
                 isVerticalPlacement = false;
             else
             {
                 Console.WriteLine("Make sure you entered correct character. V/v or H/h");
                 goto Start;
             }
-
-            Location location = GetPlacementLocation();
-            h = location.X - 1;
-            v = (ROWANDCOLUMN - 1) - (location.Y - 1);
-            if (!((isVerticalPlacement && v >= 0 && v <= ROWANDCOLUMN - ship && h >= 0 && h <= 9) || (!isVerticalPlacement && h >= 0 && h <= ROWANDCOLUMN - ship && v >= 0 && v <= 9)))
-            {
-                Console.WriteLine("Make sure you entered valid location");
-                goto Start;
-            }
-            if (isVerticalPlacement) //if isVerticalPlacement = true it will be vertical placement
-            {
-                for (int i = v - 1; i < v + ship + 1; i++)
-                    for (int j = h - 1; j < h + 2; j++)
-                    {
-                        try
-                        {
-                            if (GameBoard[i, j] == '%') //controlling if it is convenient
-                            {
-                                Console.WriteLine("Make sure you entered valid location");
-                                goto Start;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    }
-                for (int i = 0; i < ship; i++)
-                    GameBoard[v + i, h] = '%';
-            }
-            else //if isVerticalPlacement = false it will be horizontal placement
-            {
-                for (int i = v - 1; i < v + 2; i++)
-                    for (int j = h - 1; j < h + ship + 1; j++)
-                    {
-                        try
-                        {
-                            if (GameBoard[i, j] == '%') //controlling if it is convenient
-                            {
-                                Console.WriteLine("Make sure you entered valid location");
-                                goto Start;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    }
-                for (int i = 0; i < ship; i++)
-                    GameBoard[v, h + i] = '%';
-            }
-            PlacementShips.Remove(ship);
-        }
-        protected override Location GetPlacementLocation()
-        {
-            Location location = new Location();
-            string input;
-            bool pass = true;
-            int x, y;
             do
             {
                 Console.Write("Input location : ");
@@ -131,7 +72,54 @@ namespace BattleShipConsoleGame.Boards
                 }
             }
             while (pass);
-            return location;
+            h = location.X - 1;
+            v = (ROWANDCOLUMN - 1) - (location.Y - 1);
+            if (!((isVerticalPlacement && v >= 0 && v <= ROWANDCOLUMN - shipSize && h >= 0 && h <= 9) || (!isVerticalPlacement && h >= 0 && h <= ROWANDCOLUMN - shipSize && v >= 0 && v <= 9)))
+            {
+                Console.WriteLine("Make sure you entered valid location");
+                goto Start;
+            }
+            if (isVerticalPlacement) //if isVerticalPlacement = true it will be vertical placement
+            {
+                for (int i = v - 1; i < v + shipSize + 1; i++)
+                    for (int j = h - 1; j < h + 2; j++)
+                    {
+                        try
+                        {
+                            if (GameBoard[i, j] == '%') //controlling if it is convenient
+                            {
+                                Console.WriteLine("Make sure you entered valid location");
+                                goto Start;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                for (int i = 0; i < shipSize; i++)
+                    GameBoard[v + i, h] = '%';
+            }
+            else //if isVerticalPlacement = false it will be horizontal placement
+            {
+                for (int i = v - 1; i < v + 2; i++)
+                    for (int j = h - 1; j < h + shipSize + 1; j++)
+                    {
+                        try
+                        {
+                            if (GameBoard[i, j] == '%') //controlling if it is convenient
+                            {
+                                Console.WriteLine("Make sure you entered valid location");
+                                goto Start;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                for (int i = 0; i < shipSize; i++)
+                    GameBoard[v, h + i] = '%';
+            }
+            OpponentRemainShips.Add(shipSize);
         }
         public override bool ShootTarget(char[,] targetBoard)
         {
