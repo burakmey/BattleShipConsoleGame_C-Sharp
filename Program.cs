@@ -1,30 +1,42 @@
 ﻿using BattleShipConsoleGame.Boards;
+using BattleShipConsoleGame.Boards.TestBoards;
 
 namespace BattleShipConsoleGame
 {
     internal class Program
     {
         const int ROWANDCOLUMN = 10;
-        static Board user, computer1, computer2;
+        static string s1, s2;
+        static bool isGameFinished = false;
+        static Board board1, board2;
         static void Main(string[] args)
         {
-            computer1 = new ComputerBoard();
-            computer2 = new ComputerBoard();
-            //PlayGame(computer1, computer2);
+            board1 = new ComputerBoard();
+            board2 = new ComputerBoard();
             char input;
-            while (true)
+            s1 = $"{board1.name}{board1.board}".PadRight(board1.maxNameSize + 3);
+            s2 = $"{board2.name}{board2.board}";
+
+            while (!isGameFinished)
             {
                 do
                 {
-                    computer2.PrintBoard();
+                    PrintGame(board1.GameBoard, board2.GameBoard);
                     input = Console.ReadKey().KeyChar;
                 }
-                while (computer1.ShootTarget(computer2.GameBoard));
+                while (board1.ShootTarget(board2.GameBoard));
+                do
+                {
+                    PrintGame(board1.GameBoard, board2.GameBoard);
+                    input = Console.ReadKey().KeyChar;
+                }
+                while (board2.ShootTarget(board1.GameBoard));
             }
         }
         static void PrintGame(char[,] firstBoard, char[,] secondBoard)
         {
-            Console.WriteLine("________Your Board_______" + "   " + "______Computer Board_____");
+            Console.WriteLine(s1 + s2);
+            Console.WriteLine("_________________________" + "   " + "_________________________");
             for (int i = 0; i < ROWANDCOLUMN; i++)
             {
                 if (i != 0)
@@ -47,25 +59,6 @@ namespace BattleShipConsoleGame
                 Console.Write("|\n");
             }
             Console.WriteLine("|yx|1|2|3|4|5|6|7|8|9|10|" + "   " + "|yx|1|2|3|4|5|6|7|8|9|10|" + "\n");
-        }
-        static void PlayGame(Board firstBoard, Board secondBoard)
-        {
-            char input;
-            while (true)
-            {
-                do
-                {
-                    PrintGame(firstBoard.GameBoard, secondBoard.GameBoard);
-                    input = Console.ReadKey().KeyChar;
-                }
-                while (firstBoard.ShootTarget(secondBoard.GameBoard));
-                do
-                {
-                    PrintGame(firstBoard.GameBoard, secondBoard.GameBoard);
-                    input = Console.ReadKey().KeyChar;
-                }
-                while (secondBoard.ShootTarget(firstBoard.GameBoard));
-            }
         }
     }
 }

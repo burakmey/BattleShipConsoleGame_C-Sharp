@@ -4,8 +4,6 @@ namespace BattleShipConsoleGame.Boards
 {
     internal class ComputerBoard : Board
     {
-        string name = "Computer Board";
-        int maxNameSize = 23;
         List<Location> hitLocations;
         List<Location> possibleShipLocations;
         List<Location> shipHits;
@@ -30,8 +28,9 @@ namespace BattleShipConsoleGame.Boards
             get { return shipHitBorders; }
             set { shipHitBorders = value; }
         }
-        public ComputerBoard()
+        public ComputerBoard(string name = "Computer")
         {
+            base.name = name;
             CreateEmptyBoard();
             PlaceShips(Ships.Carrier.ToString(), (int)Ships.Carrier);
             PlaceShips(Ships.Battleship.ToString(), (int)Ships.Battleship);
@@ -41,12 +40,7 @@ namespace BattleShipConsoleGame.Boards
         }
         public override void CreateEmptyBoard()
         {
-            GameBoard = new char[ROWANDCOLUMN, ROWANDCOLUMN];
-            for (int i = 0; i < ROWANDCOLUMN; i++)
-                for (int j = 0; j < ROWANDCOLUMN; j++)
-                    GameBoard[i, j] = '~';
-
-            OpponentRemainShips = new List<int>();
+            base.CreateEmptyBoard();
             PossibleShipLocations = new List<Location>();
             ShipHits = new List<Location>();
             ShipHitBorders = new List<Location>();
@@ -54,23 +48,6 @@ namespace BattleShipConsoleGame.Boards
             for (int i = 0; i < ROWANDCOLUMN; i++)
                 for (int j = 0; j < ROWANDCOLUMN; j++)
                     HitLocations.Add(new Location(i, j));
-        }
-        public override void PrintBoard()
-        {
-            Console.WriteLine("_____Computer Board______");
-            for (int i = 0; i < ROWANDCOLUMN; i++)
-            {
-                if (i != 0)
-                    Console.Write($"|{ROWANDCOLUMN - i} |");
-                else
-                    Console.Write($"|{ROWANDCOLUMN - i}|");
-                for (int j = 0; j < ROWANDCOLUMN; j++)
-                {
-                    Console.Write($"{GameBoard[i, j]} ");
-                }
-                Console.Write("|\n");
-            }
-            Console.WriteLine("|yx|1|2|3|4|5|6|7|8|9|10|" + "\n");
         }
         protected override void PlaceShips(string shipName, int shipSize)
         {
@@ -90,14 +67,14 @@ namespace BattleShipConsoleGame.Boards
             }
             h = location.X;
             v = location.Y;
-            if (isVerticalPlacement) //if isVerticalPlacement = true it will be vertical placement
+            if (isVerticalPlacement) //It will be vertical placement.
             {
                 for (int i = v - 1; i < v + shipSize + 1; i++)
                     for (int j = h - 1; j < h + 2; j++)
                     {
                         try
                         {
-                            if (GameBoard[i, j] == '%') //controlling if it is convenient
+                            if (GameBoard[i, j] == '%') //Controlling if it is convenient.
                                 goto Start;
                         }
                         catch (Exception)
@@ -107,14 +84,14 @@ namespace BattleShipConsoleGame.Boards
                 for (int i = 0; i < shipSize; i++)
                     GameBoard[v + i, h] = '%';
             }
-            else //if isVerticalPlacement = false it will be horizontal placement
+            else //It will be horizontal placement.
             {
                 for (int i = v - 1; i < v + 2; i++)
                     for (int j = h - 1; j < h + shipSize + 1; j++)
                     {
                         try
                         {
-                            if (GameBoard[i, j] == '%') //controlling if it is convenient
+                            if (GameBoard[i, j] == '%') //Controlling if it is convenient.
                                 goto Start;
                         }
                         catch (Exception)
@@ -164,12 +141,12 @@ namespace BattleShipConsoleGame.Boards
             int index;
             Location location;
         Start:
-            if (ShipHits.Count == 0)
+            if (ShipHits.Count == 0) //Select random hit location and control for possible ship locations.
             {
                 index = random.Next(HitLocations.Count);
                 location = HitLocations[index];
                 PossibleShipLocations.Clear();
-                if (AddToPossibleShipLocations(location, targetBoard) != -1)
+                if (ControlPossibleHitLocations(location, targetBoard) != -1)
                 {
                     if (targetBoard[location.Y, location.X] == '%')
                     {
@@ -189,7 +166,7 @@ namespace BattleShipConsoleGame.Boards
                 }
                 return location;
             }
-            else if (ShipHits.Count > 0 && ShipHitBorders.Count != 2)
+            else if (ShipHits.Count > 0 && ShipHitBorders.Count != 2) //Select random possible ship location and update that possible ship locations.
             {
                 index = random.Next(PossibleShipLocations.Count);
                 location = PossibleShipLocations[index];
@@ -197,8 +174,7 @@ namespace BattleShipConsoleGame.Boards
                 if (targetBoard[location.Y, location.X] == '%')
                 {
                     ShipHits.Add(location);
-                    if (ShipHits.Count > 1)
-                        UpdatePossibleShipLocations(targetBoard);
+                    UpdatePossibleShipLocations(targetBoard);
                 }
                 else
                 {
@@ -221,29 +197,16 @@ namespace BattleShipConsoleGame.Boards
                 }
                 return location;
             }
-            else
-            {
-                OpponentRemainShips.Remove(ShipHits.Count);
-                if (OpponentRemainShips.Count == 0)
-                {
-                    isFinished = true;
-                    return new Location();
-                }
-                RemoveImpossibleFromHitLocations();
-                ShipHits.Clear();
-                PossibleShipLocations.Clear();
-                ShipHitBorders.Clear();
-                goto Start;
-            }
+            return location = new Location(-1, -1);
         }
-        int AddToPossibleShipLocations(Location location, char[,] targetBoard, int number = 4)
+        private protected int ControlPossibleHitLocations(Location location, char[,] targetBoard, int number = 4)
         {
             List<int> sizes = new List<int> { 1, 1, 1, 1 };
             if (!HitLocations.Contains(location))
             {
                 return 0;
             }
-            switch (number)
+            switch (number) //Calculate max ship lenght on left(0), top(1), right(2) and bottom(3) for specified location.
             {
                 case 0:
                     for (int j = location.X - 1; ; j--)
@@ -325,15 +288,15 @@ namespace BattleShipConsoleGame.Boards
                     }
                     Console.WriteLine($"sizes[{number}] = {sizes[number]}");
                     return sizes[number];
-                default:
-                    if (AddToPossibleShipLocations(location, targetBoard, 0) + AddToPossibleShipLocations(location, targetBoard, 2) - 1 >= OpponentRemainShips.Min())
+                default: //Control if there could be ship on specified location. If there is, add surroundings of specified location to possible ship locations.
+                    if (ControlPossibleHitLocations(location, targetBoard, 0) + ControlPossibleHitLocations(location, targetBoard, 2) - 1 >= OpponentRemainShips.Min())
                     {
                         if (HitLocations.Contains(new Location(location.X - 1, location.Y)))
                             PossibleShipLocations.Add(new Location(location.X - 1, location.Y));
                         if (HitLocations.Contains(new Location(location.X + 1, location.Y)))
                             PossibleShipLocations.Add(new Location(location.X + 1, location.Y));
                     }
-                    if (AddToPossibleShipLocations(location, targetBoard, 1) + AddToPossibleShipLocations(location, targetBoard, 3) - 1 >= OpponentRemainShips.Min())
+                    if (ControlPossibleHitLocations(location, targetBoard, 1) + ControlPossibleHitLocations(location, targetBoard, 3) - 1 >= OpponentRemainShips.Min())
                     {
                         if (HitLocations.Contains(new Location(location.X, location.Y - 1)))
                             PossibleShipLocations.Add(new Location(location.X, location.Y - 1));
@@ -345,13 +308,13 @@ namespace BattleShipConsoleGame.Boards
                     return PossibleShipLocations.Count;
             }
         }
-        void UpdatePossibleShipLocations(char[,] targetBoard)
+        private protected void UpdatePossibleShipLocations(char[,] targetBoard)
         {
             Location locationMin, locationMax;
             bool pass = false;
             ShipHitBorders.Clear();
             PossibleShipLocations.Clear();
-            if (ShipHits[0].X == ShipHits[1].X)
+            if (ShipHits[0].X == ShipHits[1].X) //Control for horizontal.
             {
                 int minY = 9, maxY = 0;
                 int x = ShipHits[0].X;
@@ -368,10 +331,10 @@ namespace BattleShipConsoleGame.Boards
                 }
                 locationMin = new Location(x, minY);
                 locationMax = new Location(x, maxY);
-                foreach (int item in OpponentRemainShips)
+                foreach (int item in OpponentRemainShips) //Control if there is proper ship for current possible ship locations.
                 {
-                    if (ShipHits.Count + AddToPossibleShipLocations(locationMin, targetBoard, 1) + AddToPossibleShipLocations(locationMax, targetBoard, 3) >= item
-                        && item != ShipHits.Count)
+                    if (ShipHits.Count + ControlPossibleHitLocations(locationMin, targetBoard, 1) + ControlPossibleHitLocations(locationMax, targetBoard, 3) >= item
+                        && item > ShipHits.Count)
                     {
                         pass = true;
                         break;
@@ -395,7 +358,7 @@ namespace BattleShipConsoleGame.Boards
                     ShipHitBorders.Add(locationMax);
                 }
             }
-            else if (ShipHits[0].Y == ShipHits[1].Y)
+            else if (ShipHits[0].Y == ShipHits[1].Y) //Control for vertical.
             {
                 int minX = 9, maxX = 0;
                 int y = ShipHits[0].Y;
@@ -412,10 +375,10 @@ namespace BattleShipConsoleGame.Boards
                 }
                 locationMin = new Location(minX, y);
                 locationMax = new Location(maxX, y);
-                foreach (int item in OpponentRemainShips)
+                foreach (int item in OpponentRemainShips) //Control if there is proper ship for current possible ship locations.
                 {
-                    if (ShipHits.Count + AddToPossibleShipLocations(locationMin, targetBoard, 0) + AddToPossibleShipLocations(locationMax, targetBoard, 2) >= item
-                        && item != ShipHits.Count)
+                    if (ShipHits.Count + ControlPossibleHitLocations(locationMin, targetBoard, 0) + ControlPossibleHitLocations(locationMax, targetBoard, 2) >= item
+                        && item > ShipHits.Count)
                     {
                         pass = true;
                         break;
@@ -440,7 +403,7 @@ namespace BattleShipConsoleGame.Boards
                 }
             }
         }
-        void RemoveImpossibleFromHitLocations()
+        private protected void RemoveImpossibleFromHitLocations()
         {
             int removed = 0;
             foreach (Location location in ShipHits)

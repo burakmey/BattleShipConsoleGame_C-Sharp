@@ -4,37 +4,16 @@ namespace BattleShipConsoleGame.Boards
 {
     internal class UserBoard : Board
     {
-        string name = "Buraks Board";
-        int maxNameSize = 23;
-        public UserBoard()
+        int totalShipSize = 0;
+        public UserBoard(string name)
         {
+            base.name = name.Substring(0, maxNameSize);
             CreateEmptyBoard();
-        }
-        public override void CreateEmptyBoard()
-        {
-            GameBoard = new char[ROWANDCOLUMN, ROWANDCOLUMN];
-            for (int i = 0; i < ROWANDCOLUMN; i++)
-                for (int j = 0; j < ROWANDCOLUMN; j++)
-                    GameBoard[i, j] = '~';
-
-            OpponentRemainShips = new List<int>();
-        }
-        public override void PrintBoard()
-        {
-            Console.WriteLine("_______Your Board________");
-            for (int i = 0; i < ROWANDCOLUMN; i++)
-            {
-                if (i != 0)
-                    Console.Write($"|{ROWANDCOLUMN - i} |");
-                else
-                    Console.Write($"|{ROWANDCOLUMN - i}|");
-                for (int j = 0; j < ROWANDCOLUMN; j++)
-                {
-                    Console.Write($"{GameBoard[i, j]} ");
-                }
-                Console.Write("|\n");
-            }
-            Console.WriteLine("|yx|1|2|3|4|5|6|7|8|9|10|" + "\n");
+            PlaceShips(Ships.Carrier.ToString(), (int)Ships.Carrier);
+            PlaceShips(Ships.Battleship.ToString(), (int)Ships.Battleship);
+            PlaceShips(Ships.Submarine1.ToString(), (int)Ships.Submarine1);
+            PlaceShips(Ships.Submarine2.ToString(), (int)Ships.Submarine2);
+            PlaceShips(Ships.Destroyer.ToString(), (int)Ships.Destroyer);
         }
         protected override void PlaceShips(string shipName, int shipSize)
         {
@@ -79,14 +58,14 @@ namespace BattleShipConsoleGame.Boards
                 Console.WriteLine("Make sure you entered valid location");
                 goto Start;
             }
-            if (isVerticalPlacement) //if isVerticalPlacement = true it will be vertical placement
+            if (isVerticalPlacement) //It will be vertical placement.
             {
                 for (int i = v - 1; i < v + shipSize + 1; i++)
                     for (int j = h - 1; j < h + 2; j++)
                     {
                         try
                         {
-                            if (GameBoard[i, j] == '%') //controlling if it is convenient
+                            if (GameBoard[i, j] == '%') //Controlling if it is convenient.
                             {
                                 Console.WriteLine("Make sure you entered valid location");
                                 goto Start;
@@ -99,14 +78,14 @@ namespace BattleShipConsoleGame.Boards
                 for (int i = 0; i < shipSize; i++)
                     GameBoard[v + i, h] = '%';
             }
-            else //if isVerticalPlacement = false it will be horizontal placement
+            else //It will be horizontal placement.
             {
                 for (int i = v - 1; i < v + 2; i++)
                     for (int j = h - 1; j < h + shipSize + 1; j++)
                     {
                         try
                         {
-                            if (GameBoard[i, j] == '%') //controlling if it is convenient
+                            if (GameBoard[i, j] == '%') //Controlling if it is convenient.
                             {
                                 Console.WriteLine("Make sure you entered valid location");
                                 goto Start;
@@ -120,25 +99,71 @@ namespace BattleShipConsoleGame.Boards
                     GameBoard[v, h + i] = '%';
             }
             OpponentRemainShips.Add(shipSize);
+            totalShipSize += shipSize;
         }
         public override bool ShootTarget(char[,] targetBoard)
         {
-            Location location = GetTargetLocation(targetBoard);
-            if (targetBoard[location.Y, location.X] == '%')
+            if (!isFinished)
             {
-                targetBoard[location.Y, location.X] = 'X';
-                return true;
-            }
-            else if (targetBoard[location.Y, location.X] == '~')
-            {
-                targetBoard[location.Y, location.X] = 'M';
-                return false;
+                Location location = GetTargetLocation(targetBoard);
+                if (targetBoard[location.Y, location.X] == '%')
+                {
+                    targetBoard[location.Y, location.X] = 'X';
+                    totalShipSize--;
+                    if (totalShipSize == 0)
+                    {
+                        isFinished = true;
+                    }
+                    return true;
+                }
+                else if (targetBoard[location.Y, location.X] == '~')
+                {
+                    targetBoard[location.Y, location.X] = 'M';
+                    return false;
+                }
             }
             return false;
         }
         public override Location GetTargetLocation(char[,] targetBoard)
         {
-            throw new NotImplementedException();
+            int v, h, x, y;
+            //bool pass = true;
+            string input;
+            Location location;
+            do
+            {
+                Console.Write("Input location : ");
+                input = Console.ReadLine();
+                string[] result = input.Split(",");
+                if (result.Length == 2 && int.TryParse(result[0], out x) && int.TryParse(result[1], out y))
+                {
+                    h = x - 1;
+                    v = (ROWANDCOLUMN - 1) - (y - 1);
+                    location = new Location(h, v);
+                    try
+                    {
+                        if (targetBoard[location.Y, location.X] == '~' || targetBoard[location.Y, location.X] == '%')
+                        {
+                            //pass = false;
+                            return location;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Already hit location!");
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Invalid location!");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Make sure you entered correct location.");
+                }
+            }
+            while (true);
+            //return new Location(-1, -1);
         }
     }
 }

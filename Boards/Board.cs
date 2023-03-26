@@ -5,11 +5,12 @@ namespace BattleShipConsoleGame.Boards
 {
     internal abstract class Board
     {
+        public string name, board = "'s Board";
+        public int maxNameSize = 25;
         protected const int ROWANDCOLUMN = 10;
         public bool isFinished = false;
         char[,] gameBoard;
         List<int> opponentRemainShips;
-        List<int> placementShips;
         public char[,] GameBoard
         {
             get { return gameBoard; }
@@ -19,11 +20,6 @@ namespace BattleShipConsoleGame.Boards
         {
             get { return opponentRemainShips; }
             protected set { opponentRemainShips = value; }
-        }
-        public List<int> PlacementShips
-        {
-            get { return placementShips; }
-            protected set { placementShips = value; }
         }
         public readonly struct Location
         {
@@ -35,8 +31,33 @@ namespace BattleShipConsoleGame.Boards
             public int X { get; init; }
             public int Y { get; init; }
         }
-        public abstract void CreateEmptyBoard();
-        public abstract void PrintBoard();
+        public virtual void CreateEmptyBoard()
+        {
+            GameBoard = new char[ROWANDCOLUMN, ROWANDCOLUMN];
+            for (int i = 0; i < ROWANDCOLUMN; i++)
+                for (int j = 0; j < ROWANDCOLUMN; j++)
+                    GameBoard[i, j] = '~';
+
+            OpponentRemainShips = new List<int>();
+        }
+        public virtual void PrintBoard()
+        {
+            Console.WriteLine($"{name}{board}");
+            Console.WriteLine("_________________________");
+            for (int i = 0; i < ROWANDCOLUMN; i++)
+            {
+                if (i != 0)
+                    Console.Write($"|{ROWANDCOLUMN - i} |");
+                else
+                    Console.Write($"|{ROWANDCOLUMN - i}|");
+                for (int j = 0; j < ROWANDCOLUMN; j++)
+                {
+                    Console.Write($"{GameBoard[i, j]} ");
+                }
+                Console.Write("|\n");
+            }
+            Console.WriteLine("|yx|1|2|3|4|5|6|7|8|9|10|" + "\n");
+        }
         protected abstract void PlaceShips(string shipName, int shipSize);
         public abstract bool ShootTarget(char[,] targetBoard);
         public abstract Location GetTargetLocation(char[,] targetBoard);
