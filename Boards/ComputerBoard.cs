@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace BattleShipConsoleGame.Boards
+﻿namespace BattleShipConsoleGame.Boards
 {
     internal class ComputerBoard : Board
     {
@@ -28,9 +26,12 @@ namespace BattleShipConsoleGame.Boards
             get { return shipHitBorders; }
             set { shipHitBorders = value; }
         }
-        public ComputerBoard(string name = "Computer")
+        public ComputerBoard(string name)
         {
-            base.name = name;
+            if (name.Length > maxNameSize)
+                base.name = name.Substring(0, maxNameSize);
+            else
+                base.name = name;
             CreateEmptyBoard();
             PlaceShips(Ships.Carrier.ToString(), (int)Ships.Carrier);
             PlaceShips(Ships.Battleship.ToString(), (int)Ships.Battleship);
@@ -128,9 +129,9 @@ namespace BattleShipConsoleGame.Boards
                 }
                 else
                 {
-                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} ???????");
+                    //Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} ???????");
+                    throw new Exception();
                 }
-                return false;
             }
             Console.WriteLine($"Finished!");
             return false;
@@ -160,7 +161,7 @@ namespace BattleShipConsoleGame.Boards
                 }
                 else
                 {
-                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} REMOVED!");
+                    //Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} REMOVED!");
                     HitLocations.Remove(location);
                     goto Start;
                 }
@@ -226,7 +227,7 @@ namespace BattleShipConsoleGame.Boards
                         if (sizes[number] + ShipHits.Count >= OpponentRemainShips.Max())
                             break;
                     }
-                    Console.WriteLine($"sizes[{number}] = {sizes[number]}");
+                    //Console.WriteLine($"sizes[{number}] = {sizes[number]}");
                     return sizes[number];
                 case 1:
                     for (int i = location.Y - 1; ; i--)
@@ -246,7 +247,7 @@ namespace BattleShipConsoleGame.Boards
                         if (sizes[number] + ShipHits.Count >= OpponentRemainShips.Max())
                             break;
                     }
-                    Console.WriteLine($"sizes[{number}] = {sizes[number]}");
+                    //Console.WriteLine($"sizes[{number}] = {sizes[number]}");
                     return sizes[number];
                 case 2:
                     for (int j = location.X + 1; ; j++)
@@ -266,7 +267,7 @@ namespace BattleShipConsoleGame.Boards
                         if (sizes[number] + ShipHits.Count >= OpponentRemainShips.Max())
                             break;
                     }
-                    Console.WriteLine($"sizes[{number}] = {sizes[number]}");
+                    //Console.WriteLine($"sizes[{number}] = {sizes[number]}");
                     return sizes[number];
                 case 3:
                     for (int i = location.Y + 1; ; i++)
@@ -286,7 +287,7 @@ namespace BattleShipConsoleGame.Boards
                         if (sizes[number] + ShipHits.Count >= OpponentRemainShips.Max())
                             break;
                     }
-                    Console.WriteLine($"sizes[{number}] = {sizes[number]}");
+                    //Console.WriteLine($"sizes[{number}] = {sizes[number]}");
                     return sizes[number];
                 default: //Control if there could be ship on specified location. If there is, add surroundings of specified location to possible ship locations.
                     if (ControlPossibleHitLocations(location, targetBoard, 0) + ControlPossibleHitLocations(location, targetBoard, 2) - 1 >= OpponentRemainShips.Min())
@@ -419,7 +420,7 @@ namespace BattleShipConsoleGame.Boards
                     }
                 }
             }
-            Console.WriteLine($"removed = {removed}");
+            //Console.WriteLine($"removed = {removed}");
         }
     }
 }

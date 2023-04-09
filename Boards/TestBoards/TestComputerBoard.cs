@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BattleShipConsoleGame.Boards.TestBoards
+﻿namespace BattleShipConsoleGame.Boards.TestBoards
 {
     internal class TestComputerBoard : ComputerBoard
     {
-        public TestComputerBoard()
+        public TestComputerBoard(string name = "") : base (name)
         {
             CreateEmptyBoard();
             PlaceShips(Ships.Carrier.ToString(), (int)Ships.Carrier);

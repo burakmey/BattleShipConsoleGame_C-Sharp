@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Drawing;
-
-namespace BattleShipConsoleGame.Boards
+﻿namespace BattleShipConsoleGame.Boards
 {
     internal abstract class Board
     {

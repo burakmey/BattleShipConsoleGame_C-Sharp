@@ -1,19 +1,27 @@
-﻿using System.Drawing;
-
-namespace BattleShipConsoleGame.Boards
+﻿namespace BattleShipConsoleGame.Boards
 {
     internal class UserBoard : Board
     {
         int totalShipSize = 0;
         public UserBoard(string name)
         {
-            base.name = name.Substring(0, maxNameSize);
+            if (name.Length > maxNameSize)
+                base.name = name.Substring(0, maxNameSize);
+            else
+                base.name = name;
             CreateEmptyBoard();
+            PrintBoard();
             PlaceShips(Ships.Carrier.ToString(), (int)Ships.Carrier);
+            PrintBoard();
             PlaceShips(Ships.Battleship.ToString(), (int)Ships.Battleship);
+            PrintBoard();
             PlaceShips(Ships.Submarine1.ToString(), (int)Ships.Submarine1);
+            PrintBoard();
             PlaceShips(Ships.Submarine2.ToString(), (int)Ships.Submarine2);
+            PrintBoard();
             PlaceShips(Ships.Destroyer.ToString(), (int)Ships.Destroyer);
+            PrintBoard();
+            Thread.Sleep(5000);
         }
         protected override void PlaceShips(string shipName, int shipSize)
         {
@@ -47,7 +55,7 @@ namespace BattleShipConsoleGame.Boards
                 }
                 else
                 {
-                    Console.WriteLine("Make sure you entered correct location.");
+                    Console.WriteLine("Make sure you entered correct location!");
                 }
             }
             while (pass);
@@ -55,7 +63,7 @@ namespace BattleShipConsoleGame.Boards
             v = (ROWANDCOLUMN - 1) - (location.Y - 1);
             if (!((isVerticalPlacement && v >= 0 && v <= ROWANDCOLUMN - shipSize && h >= 0 && h <= 9) || (!isVerticalPlacement && h >= 0 && h <= ROWANDCOLUMN - shipSize && v >= 0 && v <= 9)))
             {
-                Console.WriteLine("Make sure you entered valid location");
+                Console.WriteLine("Make sure you entered valid location!");
                 goto Start;
             }
             if (isVerticalPlacement) //It will be vertical placement.
@@ -67,7 +75,7 @@ namespace BattleShipConsoleGame.Boards
                         {
                             if (GameBoard[i, j] == '%') //Controlling if it is convenient.
                             {
-                                Console.WriteLine("Make sure you entered valid location");
+                                Console.WriteLine("Make sure you entered valid location!");
                                 goto Start;
                             }
                         }
@@ -87,7 +95,7 @@ namespace BattleShipConsoleGame.Boards
                         {
                             if (GameBoard[i, j] == '%') //Controlling if it is convenient.
                             {
-                                Console.WriteLine("Make sure you entered valid location");
+                                Console.WriteLine("Make sure you entered valid location!");
                                 goto Start;
                             }
                         }
@@ -122,12 +130,12 @@ namespace BattleShipConsoleGame.Boards
                     return false;
                 }
             }
+            Console.WriteLine($"Finished!");
             return false;
         }
         public override Location GetTargetLocation(char[,] targetBoard)
         {
             int v, h, x, y;
-            //bool pass = true;
             string input;
             Location location;
             do
@@ -144,7 +152,6 @@ namespace BattleShipConsoleGame.Boards
                     {
                         if (targetBoard[location.Y, location.X] == '~' || targetBoard[location.Y, location.X] == '%')
                         {
-                            //pass = false;
                             return location;
                         }
                         else
@@ -163,7 +170,6 @@ namespace BattleShipConsoleGame.Boards
                 }
             }
             while (true);
-            //return new Location(-1, -1);
         }
     }
 }
