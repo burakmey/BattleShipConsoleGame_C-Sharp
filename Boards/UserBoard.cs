@@ -21,32 +21,96 @@
             PrintBoard();
             PlaceShips(Ships.Destroyer.ToString(), (int)Ships.Destroyer);
             PrintBoard();
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
         }
         protected override void PlaceShips(string shipName, int shipSize)
         {
             int v, h, x, y;
             bool isVerticalPlacement, pass = true;
-            char c;
-            string input;
+            //char c;
+            string input, c;
+            Random random = new Random();
             Location location = new Location();
         Start:
             pass = true;
-            Console.Write("Determine the placement, vertical(V/v) or horizontal(H/h) : ");
-            c = Console.ReadLine()[0];
-            if (c == 'V' || c == 'v')
+            Console.WriteLine($"* {shipName} placement, size of -{shipSize}- */");
+            Console.Write("Determine the placement, vertical(V/v) or horizontal(H/h) or random(r/R): ");
+            //c = Console.ReadLine()[0];
+            //c = Char.ToUpper(c);
+            c = Console.ReadLine();
+            c = c.ToUpper();
+            if (c == "V")
                 isVerticalPlacement = true;
-            else if (c == 'H' || c == 'h')
+            else if (c == "H")
                 isVerticalPlacement = false;
+            else if (c == "R")
+            {
+                isVerticalPlacement = random.Next(2) == 0 ? true : false;
+                if (isVerticalPlacement)
+                    c = "V";
+                else
+                    c = "H";
+            }
             else
             {
-                Console.WriteLine("Make sure you entered correct character. V/v or H/h");
+                Console.WriteLine("Make sure you entered correct character. V/v or H/h or R/r");
                 goto Start;
             }
             do
             {
-                Console.Write("Input location : ");
+                Console.Write($"Input ship location(x,y) or generate random(r/R) *{c}*: ");
                 input = Console.ReadLine();
+                if (input == "r" || input == "R")
+                {
+                StartR:
+                    if (isVerticalPlacement)
+                    {
+                        location = new Location(random.Next(ROWANDCOLUMN), random.Next(ROWANDCOLUMN - shipSize + 1));
+                    }
+                    else
+                    {
+                        location = new Location(random.Next(ROWANDCOLUMN - shipSize + 1), random.Next(ROWANDCOLUMN));
+                    }
+                    h = location.X;
+                    v = location.Y;
+                    if (isVerticalPlacement) //It will be vertical placement.
+                    {
+                        for (int i = v - 1; i < v + shipSize + 1; i++)
+                            for (int j = h - 1; j < h + 2; j++)
+                            {
+                                try
+                                {
+                                    if (GameBoard[i, j] == '%') //Controlling if it is convenient.
+                                        goto StartR;
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+                        for (int i = 0; i < shipSize; i++)
+                            GameBoard[v + i, h] = '%';
+                    }
+                    else //It will be horizontal placement.
+                    {
+                        for (int i = v - 1; i < v + 2; i++)
+                            for (int j = h - 1; j < h + shipSize + 1; j++)
+                            {
+                                try
+                                {
+                                    if (GameBoard[i, j] == '%') //Controlling if it is convenient.
+                                        goto StartR;
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            }
+                        for (int i = 0; i < shipSize; i++)
+                            GameBoard[v, h + i] = '%';
+                    }
+                    OpponentRemainShips.Add(shipSize);
+                    totalShipSize += shipSize;
+                    return;
+                }
                 string[] result = input.Split(",");
                 if (result.Length == 2 && int.TryParse(result[0], out x) && int.TryParse(result[1], out y))
                 {
@@ -130,7 +194,7 @@
                     return false;
                 }
             }
-            Console.WriteLine($"Finished!");
+            Console.WriteLine("Finished!");
             return false;
         }
         public override Location GetTargetLocation(char[,] targetBoard)
@@ -140,7 +204,7 @@
             Location location;
             do
             {
-                Console.Write("Input location : ");
+                Console.Write("Input location (x,y): ");
                 input = Console.ReadLine();
                 string[] result = input.Split(",");
                 if (result.Length == 2 && int.TryParse(result[0], out x) && int.TryParse(result[1], out y))

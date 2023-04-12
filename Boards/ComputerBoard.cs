@@ -112,19 +112,19 @@
                 if (targetBoard[location.Y, location.X] == '%')
                 {
                     targetBoard[location.Y, location.X] = 'X';
-                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} HIT");
-                    Console.WriteLine($"PossibleShipLocations.Count = {PossibleShipLocations.Count}");
-                    Console.WriteLine($"ShipHits.Count = {ShipHits.Count}");
-                    Console.WriteLine($"ShipHitBorders.Count = {ShipHitBorders.Count}");
+                    //Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} HIT");
+                    //Console.WriteLine($"PossibleShipLocations.Count = {PossibleShipLocations.Count}");
+                    //Console.WriteLine($"ShipHits.Count = {ShipHits.Count}");
+                    //Console.WriteLine($"ShipHitBorders.Count = {ShipHitBorders.Count}");
                     return true;
                 }
                 else if (targetBoard[location.Y, location.X] == '~')
                 {
                     targetBoard[location.Y, location.X] = 'M';
-                    Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} MISS");
-                    Console.WriteLine($"PossibleShipLocations.Count = {PossibleShipLocations.Count}");
-                    Console.WriteLine($"ShipHits.Count = {ShipHits.Count}");
-                    Console.WriteLine($"ShipHitBorders.Count = {ShipHitBorders.Count}");
+                    //Console.WriteLine($"X = {location.X + 1}, Y = {ROWANDCOLUMN - location.Y} MISS");
+                    //Console.WriteLine($"PossibleShipLocations.Count = {PossibleShipLocations.Count}");
+                    //Console.WriteLine($"ShipHits.Count = {ShipHits.Count}");
+                    //Console.WriteLine($"ShipHitBorders.Count = {ShipHitBorders.Count}");
                     return false;
                 }
                 else
@@ -133,7 +133,7 @@
                     throw new Exception();
                 }
             }
-            Console.WriteLine($"Finished!");
+            Console.WriteLine("Finished!");
             return false;
         }
         public override Location GetTargetLocation(char[,] targetBoard)
